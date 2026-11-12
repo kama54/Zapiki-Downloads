@@ -42,8 +42,20 @@ jobs:
               exit 1
             fi
           }
-          check_asset app-universal-release.apk 203960418 d973403ec9bd249f20a0400cfeef97725206a7787441bced788e0c7b99899080
+          check_asset app-universal-release.1.apk 203960418 d973403ec9bd249f20a0400cfeef97725206a7787441bced788e0c7b99899080
           check_asset app-armeabi-v7a-release.apk 45007891 5858d8b9975653fbb5fa566841c00fb41edaca0656d7d63a87d0bc8798b2e770
-          check_asset app-arm64-v8a-release.apk 57699851 ac9e26d752ec9fe57b3fcb976b07c6fc3c4fa69798379a083924a9a5575b125a
-          gh release edit v1.0.0.1 --repo "${GITHUB_REPOSITORY}" --draft=false
+          check_asset app-arm64-v8a-release.1.apk 57699851 ac9e26d752ec9fe57b3fcb976b07c6fc3c4fa69798379a083924a9a5575b125a
+          cat > "$RUNNER_TEMP/published-notes.txt" <<'NOTES'
+          ZAPIKI 1.0.0.1 (versionCode 214) — correctifs des conflits de sessions Supabase et des relevés de lecture.
+
+          APK officiels signés avec la clé GogoStudio :
+          - Universal : app-universal-release.1.apk — SHA-256 d973403ec9bd249f20a0400cfeef97725206a7787441bced788e0c7b99899080
+          - ARM32 : app-armeabi-v7a-release.apk — SHA-256 5858d8b9975653fbb5fa566841c00fb41edaca0656d7d63a87d0bc8798b2e770
+          - ARM64 : app-arm64-v8a-release.1.apk — SHA-256 ac9e26d752ec9fe57b3fcb976b07c6fc3c4fa69798379a083924a9a5575b125a
+
+          Android 7.0+ ; application com.zapiki.tv ; certificat SHA-256 cd5e820127209680a7ac40d95a84896425f54b08ff55e37f73a10b23d1dcccd3.
+
+          Ne pas confondre ces APK signés avec les APK de test debug du dépôt Zapiki-android.
+          NOTES
+          gh release edit v1.0.0.1 --repo "${GITHUB_REPOSITORY}" --notes-file "$RUNNER_TEMP/published-notes.txt" --draft=false
           echo "ZAPIKI v1.0.0.1 signed APK release published successfully."
