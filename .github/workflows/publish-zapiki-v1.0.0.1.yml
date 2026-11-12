@@ -19,7 +19,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          RELEASE="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/v1.0.0.1")"
+          RELEASE="$(gh api "repos/${GITHUB_REPOSITORY}/releases/443429395")"
+          test "$(echo "$RELEASE" | jq -r .tag_name)" = "v1.0.0.1"
           if [ "$(echo "$RELEASE" | jq -r .draft)" != "true" ]; then
             echo "Release already published; refusing to change assets."
             exit 0
@@ -57,5 +58,6 @@ jobs:
 
           Ne pas confondre ces APK signés avec les APK de test debug du dépôt Zapiki-android.
           NOTES
-          gh release edit v1.0.0.1 --repo "${GITHUB_REPOSITORY}" --notes-file "$RUNNER_TEMP/published-notes.txt" --draft=false
+          gh api --method PATCH "repos/${GITHUB_REPOSITORY}/releases/443429395" -f body="$(cat "$RUNNER_TEMP/published-notes.txt")" -F draft=false > "$RUNNER_TEMP/published-release.json"
+          test "$(jq -r .draft "$RUNNER_TEMP/published-release.json")" = "false"
           echo "ZAPIKI v1.0.0.1 signed APK release published successfully."
