@@ -1,0 +1,46 @@
+name: Prepare ZAPIKI v1.0.0.1 signed APK release draft
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  prepare-draft:
+    if: startsWith(github.event.head_commit.message, 'Prepare ZAPIKI 1.0.0.1 draft')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create draft release for manually signed production APKs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view v1.0.0.1 --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            echo "Release already exists; no replacement performed."
+            exit 0
+          fi
+          cat > "$RUNNER_TEMP/release-notes.txt" <<'NOTES'
+          ZAPIKI 1.0.0.1 (214) — correctifs des sessions de lecture Supabase.
+
+          Cette release est destinée aux APK **Release signés avec la clé GogoStudio**, pas aux APK debug du dépôt de développement.
+
+          Fichiers à importer dans cette release :
+          - app-universal-release.apk — SHA-256: d973403ec9bd249f20a0400cfeef97725206a7787441bced788e0c7b99899080
+          - app-armeabi-v7a-release.apk — SHA-256: 5858d8b9975653fbb5fa566841c00fb41edaca0656d7d63a87d0bc8798b2e770
+          - app-arm64-v8a-release.apk — SHA-256: ac9e26d752ec9fe57b3fcb976b07c6fc3c4fa69798379a083924a9a5575b125a
+
+          Identifiant : com.zapiki.tv — minSdk 24 (Android 7) — versionCode 214.
+          Les trois APK présentent le même certificat de signature GogoStudio.
+          Certificat SHA-256: cd5e820127209680a7ac40d95a84896425f54b08ff55e37f73a10b23d1dcccd3.
+
+          Laisser la release en brouillon tant que les trois APK ne sont pas joints et testés.
+          NOTES
+          gh release create v1.0.0.1 \
+            --repo "${GITHUB_REPOSITORY}" \
+            --target "${GITHUB_SHA}" \
+            --draft \
+            --title 'ZAPIKI 1.0.0.1 — APK officiels signés' \
+            --notes-file "$RUNNER_TEMP/release-notes.txt"
